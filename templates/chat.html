@@ -1,0 +1,235 @@
+
+
+
+<!-- 聊天按钮 -->
+		<aside id="chat">
+			<icon></icon>
+			<a href="javascript:void(0);">在线聊天</a>
+		</aside>
+
+		<!-- 聊天窗口-->
+		<aside id="chat_win">
+			<div class="title">在线聊天，按ESC关闭窗口，按Enter提交信息</div>
+			<!-- 好友面板 -->
+			<div class="frily">
+				<!-- 一个好友 -->
+				<!--
+				<a href="javascript:void(0)" class="fly">
+					<div class='d1'>
+						<img class="chat_img" src='images/coms.jpg' />
+						<div class="msg">99+</div>
+					</div>
+					<div class='d2'>
+						<span>藏三僧</span>
+					</div>
+				</a>
+
+				<a href="javascript:void(0)" class="fly">
+					<div class='d1'>
+						<img class="chat_img" src='images/coms.jpg' />
+						<div class="msg">64</div>
+					</div>
+					<div class='d2'>
+						<span>─╀0vЁ灬忽必烈</span>
+					</div>
+				</a>
+
+				<a href="javascript:void(0)" class="fly">
+					<div class='d1'>
+						<img class="chat_img" src='images/coms.jpg' />
+						<div class="msg zero">0</div>
+					</div>
+					<div class='d2'>
+						<span>─╀0vЁ灬忽必烈</span>
+					</div>
+				</a>
+				-->
+				<!-- 获取更多 -->
+				<a class="more" href="javascript:void(0)">加载更多</a>
+
+			</div>
+			<!-- 聊天面板 -->
+			<div class="chat_cs">
+				<!-- 聊天内容 -->
+				<div class="content">
+					<!-- 获取更多 -->
+					<a class="more" href="javascript:void(0)">加载更多</a>
+
+				</div>
+				<!-- 回复 -->
+				<div class="reply">
+					<textarea id="editer"></textarea>
+				</div>
+
+			</div>
+		</aside>
+		<script type="text/javascript" charset="utf-8" src="./js/ueditor.config.js"></script>
+		<script type="text/javascript" charset="utf-8" src="./js/ueditor.all.js"> </script>
+		<script>
+			var ws = new WebSocket("ws://127.0.0.1:5001/chat/1")
+
+			// 监听消息
+			ws.onmessage = function(env){
+				let chat = $('<div class="left">'+
+						'<div class="d1">'+
+						'	<img class="chat_img" src="images/user.jpg" />'+
+						'</div>'+
+						'<div class="d2">'+
+						'	<span>─╀0vЁ灬残夜</span><time>2019-10-16 08:58:34</time>'+
+						'	<p>'+
+						'		<span>不好意思啊，资料我自己没有进行存储</span>'+
+						'	</p>'+
+						'</div>'+
+					'</div>')
+				data = JSON.parse(env.data)
+				$.get('http://localhost:8000/user/'+data.from_user +"/", function(r){
+					chat.find(".d2 > span").text(r.name)
+					chat.find(".d2 > time").text(r.send_time)
+					chat.find(".d2 p span").text(data.message)
+					$(".content").append(chat)
+				},'json')
+
+			}
+
+			var current_user = null
+			function change_chat(tag){
+				$(".content").find("a.more").nextAll().remove()
+				// 获取要聊天的用户ID
+				let user_id = tag.id ;
+				current_user = user_id ;
+				let chat_text = '<div class="left">'+
+						'<div class="d1">'+
+						'	<img class="chat_img" src="images/user.jpg" />'+
+						'</div>'+
+						'<div class="d2">'+
+						'	<span>─╀0vЁ灬残夜</span><time>2019-10-16 08:58:34</time>'+
+						'	<p>'+
+						'		<span>不好意思啊，资料我自己没有进行存储</span>'+
+						'	</p>'+
+						'</div>'+
+					'</div>'
+				// 显示该用户的最近聊天记录
+				$.get('http://127.0.0.1:8000/history/user/'+user_id+'/1/', function(data){
+					for (let i=0 ; i<data.length ; i++){
+						let chat = $(chat_text).clone()
+						//如果收信息的人是和被聊天的用户，信息显示在右边
+						if (data[i].to_user_id == user_id) {
+							chat.attr('class', 'right')
+						}
+						chat.find('.d2 > span').text(data[i].senduser)
+						chat.find('.d2 > time').text(data[i].send_time)
+						chat.find('.d2 > p span').text(data[i].message)
+
+						$(".content").find("a.more").after(chat)
+					}
+
+				},'json')
+			}
+
+			$(function(){
+				// 异步查询好友列表
+				$.get('http://127.0.0.1:8000/friends/owner/1/', function(data){
+					let friend = $('<a id="" href="javascript:void(0)" onclick="change_chat(this)" class="fly">'+
+									'<div class="d1">'+
+									'	<img class="chat_img" src="images/coms.jpg" />'+
+									'	<!-- 显示消息数量 --> '+
+									'	<div class="msg">99+</div>'+
+									'</div>'+
+									'<div class="d2">'+
+									'	<span>藏三僧</span>'+
+									'</div>'+
+								'</a>')
+					data.forEach(function(fir){
+						let f = friend.clone()
+						f.attr('id', fir.friend.id)
+						f.find('.d2 span').text(fir.friend.name)
+						$(".frily").append(f)
+					})
+				},'json')
+
+
+
+				$("#chat").on('click', function(){
+					var tag = $(this);
+					tag.hide();
+					$('#chat_win').show();
+					if(!tag.data('scroll')) {
+					    $.ajax({
+                            url:"/user/friend",
+                            method:'GET',
+                            dataType:"json",
+                            success:function (data) {
+                                let friends="";
+                                for (let i = 0;i<data.length;i++){
+                                    friends+=`<a href="javascript:void(0)" class="fly">
+                                        <div class='d1'>
+                                            <img class="chat_img" src='/res/photo/${data[i].user_id}' />
+                                            <div class="msg">0</div>
+                                        </div>
+                                        <div class='d2'>
+                                            <span>${data[i].nickname}</span>
+                                        </div>
+                                    </a>`
+                                }
+                            }
+                        })
+
+
+
+						$(".content , .frily").mCustomScrollbar({
+							theme:"dark-thin",
+							callbacks: {
+								onScroll: function(){
+									//console.log(1)
+								}
+							}
+						});
+						// 初始化滚动条放到尾部
+						$(".content").mCustomScrollbar('scrollTo', 'bottom');
+						tag.data('scroll', true);
+					}
+				})
+
+				$(document).on('keydown', function(e){
+					if (e.keyCode==27){
+						$('#chat_win').hide()
+						$("#chat").show()
+					}
+				})
+
+
+			$("#editer").keydown(function(e){
+				if (e.keyCode ==13) {
+					msg = $(".chat_cs .right:first").clone()
+					msg.find("span:last").text($(this).val())
+					$(".content").append(msg)
+
+					// 将信息发送给后端
+
+					if (current_user == null){
+						alert("请先选择聊天的对象")
+						return ;
+					}
+					if (ws.readyState == 1){
+						// 发送信息，并携带发给哪一个用户的user_id身份
+						ws.send(current_user + ":"+ $(this).val())
+					}
+
+
+					// 清除 输入的内容
+					$(this).val('').focus()
+
+					//刷新滚动条
+					//$(".content").mCustomScrollbar('update')
+					$(".content").mCustomScrollbar('destroy')
+					$(".content").mCustomScrollbar({theme:"dark-thin"})
+					$(".content").mCustomScrollbar('scrollTo', 'bottom', {
+						scrollInertia:80
+					});
+
+				}
+			})
+
+			})
+
+		</script>

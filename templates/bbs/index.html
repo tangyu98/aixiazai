@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load extra_filter %}
+
+    <title>学生信息</title>
+</head>
+<body>
+<table border="1">
+    <tr>
+        <th>名字</th>
+        <th>性别</th>
+        <th>生日</th>
+        <th>学校</th>
+    </tr>
+    {% for stu in students %}
+        <tr>
+            <td><a href="/bbs/detail/{{ stu.pk }}">{{ stu.name }}</a></td>
+            <td>{{ stu.sex | sex }}</td>
+            <td>{{ stu.birth }}</td>
+            <td>{{ stu.school.name }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+
+</body>
+</html>

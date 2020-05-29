@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/index.css"/>
+    <title>{% block title %}{% endblock %}</title>
+    <script src="/static/js/jquery-3.2.1.min.js"></script>
+    <script src="/static/js/common.js"></script>
+
+</head>
+<body>
+{% block tanchu %}{% endblock %}
+<!-- 登录弹出层 -->
+{% include 'index-header.html' %}
+
+
+<!-- 网站头信息-->
+{% block nav %}{% endblock %}
+
+<!-- 网站主体 -->
+<div id="main">
+    <!-- 定义一个条目-->
+    {% block main %}{% endblock %}
+</div>
+{% block page_tb %}{% endblock %}
+{% block script %}{% endblock %}
+{% if request.session.LOGIN_LOCAL_FLAG %}
+    {% include 'chat.html' %}
+{% endif %}
+
+</body>
+
+
+</html>

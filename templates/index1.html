@@ -1,0 +1,135 @@
+{% extends 'template.html' %}
+{% block title %}{% endblock %}
+{% load extra_filter %}
+
+{% block tanchu %}
+    <!-- 登录弹出层 -->
+    <div class="cvs" {% if not msg %}
+        {% if not request.GET.url %}
+         style="display:none"
+        {% endif %}
+    {% endif %} id="cvs2_logon">
+        <div class="newModWin">
+            <div class="title">登录爱下下账号</div>
+            <div class="close" id="cvs2_close" onclick="close_win()">X</div>
+
+            <div class="logWin">
+                <form action="/login1" method="post">
+                    {% if request.GET.url %}
+                        <input type="hidden" name="url" value="{{ request.GET.url }}">
+                    {% endif %}
+                    {% csrf_token %}
+                    <input type="text" class="inp user" name="account" value="{{ account }}" autocomplete="off"
+                           placeholder="请输入用户名"/>
+                    <input type="password" class="inp pass" name="pwd" autocomplete="off" placeholder="请输入密码"/>
+                    {{ msg }}
+                    <a href="/findpass" class="find_pass">忘记密码，立即找回</a>
+                    <input type="submit" class="su_btn" value="登录"/>
+                    <a class="third" href="https://openauth.alipaydev.com/oauth2/appToAppAuth.htm?app_id=2016101500694263&redirect_uri=http://127.0.0.1:8000/third/callback">支付宝登陆</a>
+                    <a href="register_ai" class="reg">注册</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block nav %}
+    <div id="nav">
+        <div id="search">
+            <input type="text" name="name" autocomplete="off"/><a class="search btn">搜索</a>
+        </div>
+
+        <div id="logon">
+            <div class="cons">
+                欢迎光临爱下下！
+            </div>
+            <div class="opers">
+                <a class="btn" href="upload.html">上传资料</a>
+            </div>
+        </div>
+
+        <div id="login">
+
+            {% if request.session.LOGIN_LOCAL_FLAG %}
+                <img src="/user/photo"/>
+
+            {% else %}
+                <a href="javascript:void(0)" onclick="showWin()">点击登录</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+{% block main %}
+    <!-- 定义一个条目-->
+    {% for res in page %}
+        <div class="pro">
+            <div class="img">
+                <img src="static/images/{{ res.ext | ext }}.svg"/>
+            </div>
+            <div class="cs">
+                <div class="up">
+                    <a href="{% url 'resource:detail1' res.id %}">{{ res.resourceName }}</a>
+                </div>
+                <div class="down">
+                    上传者：{{ res.user.userinfo.nickname }}
+                    访问次数：{{ nums | visit:res.pk }}
+{#                    上传时间：{{ res.upload_time | date:'Y-m-d H:i:s' }}#}
+                </div>
+            </div>
+            <div class="arr">
+                积分：<span>{{ res.score }}</span>
+            </div>
+        </div>
+    {% endfor %}
+
+
+    <div class="panigation">
+        <a href="/">首页</a>
+        {% if page.has_previous %}
+            <a href="/{{ page.previous_page_number }}">&lt;上一页</a>
+        {% else %}
+            <a href="javascript:void(0)">&lt;上一页</a>
+        {% endif %}
+        {#			<a>1</a>#}
+        {#			<a>2</a>#}
+        {#			<a class="act">3</a>#}
+        {#			<a>4</a>#}
+        {#			<a>5</a>#}
+        {% if page.has_next %}
+            <a href="/{{ page.next_page_number }}">&gt;下一页></a>
+        {% else %}
+            <a href="javascript:void(0)">&gt;下一页></a>
+        {% endif %}
+        <a href="/{{ page.paginator.num_pages }}">尾页</a>
+        <input type="number" style="width: 40px;height: 30px" value="{{ page.number }}" onchange="show_page(this)">
+        <a>{{ page.number }}/{{ page.paginator.num_pages }}</a>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        function showWin() {
+            $("#cvs2_logon").show()
+        }
+
+        function close_win() {
+            $("#cvs2_logon").hide()
+        }
+
+        function show_page(tag) {
+            let page = tag.value;
+            if (page < 1) {
+                page = 1
+            }
+            if (page > {{ page.paginator.num_pages }}) page = {{ paginator.num_pages }}
+                window.location.href = `/${page}`
+        }
+
+        $(function () {
+            $(document).keydown(function (even) {
+                if (even.keyCode == 27) {
+                    close_win()
+                }
+            })
+        })
+    </script>
+{% endblock %}

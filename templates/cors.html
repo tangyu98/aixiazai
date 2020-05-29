@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户</title>
+    <script src="/static/js/jquery-3.2.1.min.js"></script>
+    <script src="http://127.0.0.1:8000/user/"></script>
+</head>
+<body>
+<div id="cors"></div>
+<a href="#" onclick="show_user()"></a>
+
+<script>
+    function show_user() {
+        script = "<script src='http://127.0.0.1:8000/user/'>"
+        script += "</" + "script>"
+
+        $("#cors").html(script)
+    }
+</script>
+</body>
+</html>

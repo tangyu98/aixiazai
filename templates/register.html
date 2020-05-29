@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+</head>
+<body>
+    <form action="/reg" method="post">
+
+        <p>
+            <label>用户名</label>
+            <input type="text" name="name1" value="{{ name1 }}">
+        </p>
+        <p>
+            <label>密码</label>
+            <input type="password" name="pwd">
+            <span>{{ msg }}</span>
+        </p>
+        <p>
+            <label>确认密码</label>
+            <input type="password" name="newpwd">
+        </p>
+        <p>
+            <label>电话</label>
+            <input type="number" name="tel" value="{{ tel }}">
+        </p>
+        <p>
+            <input type="submit" value="注册">
+        </p>
+    </form>
+</body>
+</html>

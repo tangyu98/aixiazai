@@ -1,0 +1,108 @@
+{% extends 'template.html' %}
+{% block title %}用户注册{% endblock %}
+
+{% block nav %}
+    <div class="reg">
+        <span><label class="btn"><input id="reg" type="button" form="myform" value="下一步"/></label></span>
+    </div>
+{% endblock %}
+<div id="main">
+    <!-- 定义一个条目-->
+    {% block main %}
+        <div class="upload reg2">
+            <!-- 显示图片-->
+            <div id="show_photo"></div>
+            <!-- 注册步骤导航-->
+            <div class="reg_step">
+                <a class="step" href="./register_ai">注册信息</a><a class="step2" href="./re_next">基本信息</a><a class="step2"
+                                                                                                          href="./re_end">注册完成</a>
+            </div>
+            <hr/>
+
+            <form action="/re_next" id="myform" method="post" autocomplete="off" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden"  name="user_id"  value="{{ pk }}">
+                <span>
+                    <label>用户头像：</label>
+                    <input class="upt" type="text" readonly="readonly"/>
+                    <input class="upt" type="file" name="photo" value="" onchange="show_photo(this)" accept="image/jpeg,image/gif,image/png"/>
+                    <b></b>
+                    <b>文件格式可以是jpg,gif,png等图片格式</b>
+                </span>
+                <span>
+                    <label>电子邮箱：</label>
+                    <input id="email" class="upt" type="text" name="email" value=""/>
+                    <b></b>
+                    <b>您丢失密码后找回密码的凭证</b>
+                </span>
+                <span>
+                    <label>出生日期：</label>
+                    <input id="tel" class="upt" type="date" name="birth" value=""/>
+                </span>
+
+                <span>
+                    <label>昵称：</label>
+                    <input id="nickname" class="upt" type="text" name="nickname" value=""/>
+                    <b></b>
+                </span>
+
+                <span>
+                    <label>真实姓名：</label>
+                    <input id="realname" class="upt" type="text" name="realname" value=""/>
+                    <b></b>
+                </span>
+
+                <span>
+                    <label>性别：</label>
+                    <select name="sex" class="upt">
+                        <option value="s">保密</option>
+                        <option value="m">男</option>
+                        <option value="f">女</option>
+                    </select>
+                </span>
+
+
+            </form>
+        </div>
+    {% endblock %}
+</div>
+
+{% block script %}
+    <script>
+        function show_photo(tag){
+            let file=tag.files[0];
+            let filename=file.name;
+            let siza=file.siza;
+            let type=file.type;
+            if (type!="image/jpeg" && type!="image/png" && type!="image/gif"){
+                $(tag).next().text("您上传的头像格式不正确");
+                return false
+            }
+            $(tag).prev().val(filename);
+            $(tag).next().text("");
+
+            let fr=new FileReader();
+            fr.readAsDataURL(file);
+            fr.onload=function () {
+                $("#show_photo").html("<img src='"+fr.result+"'/>")
+            };
+            return true
+        }
+
+        $(function () {
+            $("#reg").click(function () {
+                let flag=show_photo($("[type=file]")[0])
+                if(flag){
+                    let regex=/^\w+@\w+\.\w+$/;
+                    let email= $("#email").val();
+                    if (!regex.test(email)){
+                        $("#email").next().text("邮箱格式不正确")
+                        return false;
+                    }
+                    $("#myform").submit()
+
+                }
+            })
+        })
+    </script>
+{% endblock %}

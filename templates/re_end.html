@@ -1,0 +1,41 @@
+{% extends 'template.html' %}
+{% block title %}用户注册{% endblock %}
+
+{% block nav %}
+    <div class="reg">
+        <span><label class="btn"><input id="reg" type="button" form="myform" value="下一步"/></label></span>
+    </div>
+{% endblock %}
+
+<div id="main">
+    <!-- 定义一个条目-->
+    {% block main %}
+        <div class="upload reg2">
+
+            <!-- 注册步骤导航-->
+            <div class="reg_step">
+                <a class="step" href="./register_ai">注册信息</a><a class="step2" href="./re_next">基本信息</a><a class="step2" href="./re_end">注册完成</a>
+            </div>
+            <hr/>
+
+            <p style="text-align:center" class="suc">
+                <b>欢迎{{ nickname }}注册成功、您是本系统第<span>{{ user.id }}</span>位用户~</b><br/>
+                <a href="./index.html">系统
+                    <time id="tm">5</time>
+                    s后会自动跳转到首页，如不能自动跳转，请点击跳转到首页</a>
+            </p>
+        </div>
+    {% endblock %}
+</div>
+{% block script %}
+    <script>
+        let time = 5;
+        setInterval(function () {
+            time--;
+            if (time == 0) {
+                window.location.href = "/"
+            }
+            $("#tm").text(time)
+        }, 1000)
+    </script>
+{% endblock %}

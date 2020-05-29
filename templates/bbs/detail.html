@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>详情</title>
+    {% load extra_filter %}
+</head>
+<body>
+    <p>主键：{{ student.stuNo }}</p>
+    <p>姓名：{{ student.name }}</p>
+    <p>性别：{{ student.sex | sex }}</p>
+    <p>生日：{{ student.birth }}</p>
+    <p>学校：{{ student.school.name }}</p>
+</body>
+</html>

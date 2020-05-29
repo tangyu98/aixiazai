@@ -1,0 +1,170 @@
+{% extends 'template.html' %}
+{% block title %}详情页{% endblock %}
+
+
+<!-- 定义一个条目-->
+{% block main %} {% load extra_filter %}
+    <div id="detail">
+        <!-- 资源上传者信息 -->
+        <div class="res_author">
+            <img src="{% url 'resource:photo' resource.user.id %}"/>
+            <span>{{ resource.nickname }}</span><br/>
+            <a class="gz" href="javascript:void(0)">关注</a>
+            <a href="javascript:void(0)">查看TA的更多资源</a>
+        </div>
+        <div class="res_det">
+            <!-- 资源信息 -->
+            <div class="title"> <!-- 主信息-->
+                <div class="img">
+                    <img src="/static/images/{{ resource.ext | ext }}.svg"/>
+                </div>
+                <div class="cons">
+                    <div>
+                        <label>{{ resource.resourceName }}</label>
+                    </div>
+                    <div>
+                        <label>{{ resource.upload_time | date:'Y-m-d' }}
+                            上传大小：{{ resource.resourceSize|filesizeformat }}</label>
+                        {% for k in resource.keywords.split %}
+                            <span>{{ k }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="desc"> <!-- 信息描述-->
+                {{ resourceDesc }}
+            </div>
+            <div class="msg"> <!-- 评价信息-->
+                <span class="act">★</span>
+                <span class="act">★</span>
+                <span class="act">★</span>
+                <span class="act">★</span>
+                <span>★</span>
+            </div>
+            <div class="oper"> <!-- 下载操作-->
+                <span>所需积分：<b>{{ resource.score }}</b></span>
+                <span>下载次数：<b>{{ downloadnum }}</b></span>
+                <span>
+                    <a class="btn" href="{% url 'resource:download' resource.pk %}">下载</a>
+                    <a class="btn">收藏</a>
+                </span>
+            </div>
+        </div>
+
+    </div>
+    <div id="comment">
+        <div class="title">
+            评论：<span>共有<b>{{ comments|length }}</b>条</span>
+            <hr/>
+        </div>
+
+        <!--每一条评论 -->
+        {% for com in resource.comments.all %}
+            <div class="cons">
+                <div class="img">
+                    <img src="/res/photo/{{ com.user.id }}"/>
+                </div>
+                <div class="cmt">
+                    <div>
+                        <span class="author">{{ com.user.info.nickname }}</span>
+                        <span class="timer">{{ com.user.info.comment_time|date:'Y-m-d H:i:s' }}</span>
+                        <span class="star">
+                            {% for i in ran %}
+                                {% if i < com.star %}
+                                    <span class="act">★</span>
+                                {% else %}
+                                    <span>★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    <div class="msg">
+                        <dt>{{ com.content }}</dt>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- 开始评论-->
+    <div id="mycomments">
+        <div>
+            <span>我的评论</span>
+            <hr/>
+            <input type="hidden" name="star" value="1">
+            <textarea id="trea" placeholder="可以留下您的宝贵意见哟"></textarea>
+            <div class="star"> <!-- 评价信息-->
+                <span n="1" class="act">★</span>
+                <span n="2">★</span>
+                <span n="3">★</span>
+                <span n="4">★</span>
+                <span n="5">★</span>
+            </div>
+            <a id="commentBtn" class="btn">评论</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(function () {
+            $("#mycomments .star > span").on("click", function () {
+                $(this).addClass("act");
+                $(this).prevAll().addClass("act");
+                $(this).nextAll().removeClass("act");
+                $("[name=star]").val($(this).attr("n"));
+            });
+            $("#commentBtn").click(function () {
+                let data = {
+                    star: $("[name=star]").val(),
+                    content: $("#trea").val(),
+                    res_id:{{ id }},
+                };
+                $.ajax({
+                    url: '/res/comment',
+                    method: 'post',
+                    data: data,
+                    dataType: 'json',
+                    success: function (r) {
+                        let comments = `
+                            <div class="cons">
+                                <div class="img">
+                                    <img src="./images/coms.jpg"/>
+                                </div>
+                                <div class="cmt">
+                                    <div>
+                                        <span class="author">zhangsan</span>
+                                        <span class="timer">2016-05-17 15:32:12</span>
+                                        <span class="star">
+                                            <span class="act">★</span>
+                                            <span class="act">★</span>
+                                            <span class="act">★</span>
+                                            <span>★</span>
+                                            <span>★</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="msg">
+                                        <dt>这本书真心不错，值得下载~！</dt>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        comments = $(comments);
+                        comments.find("img").attr("src", '/res/photo/' + r.user_id);
+                        comments.find(".author").text(r.nickname);
+                        comments.find(".time").text(r.comment_time.replace('T', ' '));
+                        comments.find(".star span").removeClass("act");
+                        comments.find(".star span:lt(" + r.star + ")").addClass("act");
+                        comments.find(".msg dt").text(r.content);
+
+                        $("#comment .title").after(comments);
+                        num = $("#comment .title span b").text();
+                        $("#comment .title span b").text(num - -1)
+                    }
+                })
+            })
+        })
+
+    </script>
+{% endblock %}

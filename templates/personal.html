@@ -1,0 +1,27 @@
+{% extends 'template.html' %}
+{% block title %}{% endblock %}
+{% block main %}
+    <div class="personal">
+        <div class="lf">
+            {#				<img src="/user/photo"/>#}
+            {{ photo }}
+        </div>
+
+
+        <div class="rf">
+            <div>
+                <span>{{ new.nickname }}</span>
+                <span>
+						<b>{{ new.realname }}</b> | <b>{{ new.sex }}</b> |  <b>{{ new.birth | date:"Y-m-d" }}</b>
+						<b><a href="modifypass.html">修改密码</a></b>
+					</span>
+            </div>
+
+            <div>
+                <span><b>8</b>积分</span>
+                <span><b>0</b>关注</span>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

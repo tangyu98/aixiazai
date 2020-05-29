@@ -1,0 +1,89 @@
+{% extends 'template.html' %}
+{% block title %}用户注册{% endblock %}
+
+{% block nav %}
+    <div class="reg">
+        <span><label class="btn"><input id="reg" type="button" form="myform" value="下一步"/></label></span>
+    </div>
+{% endblock %}
+
+<!-- 定义一个条目-->
+{% block main %}
+    <div class="upload reg2">
+
+        <!-- 注册步骤导航-->
+        <div class="reg_step">
+            <a class="step">注册信息</a><a class="step2">基本信息</a><a class="step2">注册完成</a>
+        </div>
+        <hr/>
+
+        <form action="/regis" autocomplete="off" id="myform" method="post">
+            {% csrf_token %}
+            <span>
+                <label>手机号/账号：</label>
+                <input id="name" class="upt" type="text" name="account" value="{{ account }}"
+                       onchange="check_user(this)"/>
+                <b>{{ msg }}</b>
+                <b></b>
+            </span>
+            <span>
+                <label>密码：</label>
+                <input id="password" class="upt" type="password" name="password" value=""/>
+                <b></b>
+                <b>密码长度为6-20位</b>
+            </span>
+            <span>
+                <label>确认密码：</label>
+                <input id="confirmPass" class="upt" type="password" name="abd" value=""/>
+                <b></b>
+                <b>两次输入的密码必须保持一致</b>
+            </span>
+        </form>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        function check_user(tag) {
+            let account = tag.value;
+
+            $.ajax({
+                url: "/check_user",
+                data: {"account": account},
+                method: "POST",
+                dataType: 'json',
+                success: function (data) {
+                    if (!data.status) {
+                        $(tag).next().text(data.message);
+                    } else {
+                        $(tag).next().text("");
+                    }
+                    $(tag).data("check_status", data.status)
+                }
+            });
+        }
+
+        $(function () {
+            $("#reg").on("click", function () {
+                let status = $("#name").data("check_status");
+                if (!status) {
+                    return false;
+                }
+
+                let password = $("#password").val();
+                if (password.length < 6 || password.length > 20) {
+                    $("#password").next().text("密码格式不正确");
+                    return false;
+                }
+                $("#password").next().text("");
+                let confirmPass = $("#confirmPass").val();
+                if (password != confirmPass) {
+                    $("#confirmPass").next().text("两次输入的密码不一样");
+                    return false
+                }
+                $("#confirmPass").next().text("");
+                $("#myform").submit()
+            })
+        })
+    </script>
+{% endblock %}

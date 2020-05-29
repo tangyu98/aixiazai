@@ -1,0 +1,70 @@
+{% extends 'template.html' %}
+{% block title %}找回密码{% endblock %}
+
+{% block main %}
+
+<!-- 上传表单-->
+<div class="upload">
+    <p>密码找回</p>
+    <hr />
+    <form action="/findpass" method="post">
+        <span>
+            <label>找回方式：</label>
+            <select class="upt" name="way">
+                <option selected="selected" value="1">邮件找回</option>
+                <option value="2">电话找回</option>
+            </select>
+        </span>
+        <span>
+            <label>输入账号：</label>
+            <input class="upt" type="text" name="account" value="" />
+        </span>
+        <span>
+            <label>输入邮件/电话：</label>
+            <input class="upt" type="text" name="email" value="" />
+        </span>
+        <span><label class="btn"><input type="button" value="确认找回" /></label></span>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+
+    <script>
+
+        $(function(){
+
+            $("[type=button]").click(function(){
+
+                if ($("[name=account]").val() == ""){
+                    return ;
+                }
+
+                if ($("[name=email]").val() == ""){
+                    return ;
+                }
+
+                //$(this).parents("form").submit()
+
+                $.ajax({
+                    url: '/findpass',
+                    data: $(this).parents("form").serialize(),
+
+                    method:'POST',
+                    dataType:'json',
+                    success: function(r){
+                       alert(r.msg)
+                    }
+
+                })
+
+
+            })
+
+
+        })
+
+
+    </script>
+
+{% endblock %}
